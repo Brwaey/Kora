@@ -1,144 +1,117 @@
-# Kora 语音面试官
+# Kora 语音面试
 
-一个基于 Vue 3 的智能中文语音面试系统，支持语音识别、AI 交互和面试记录导出。
+Kora 语音面试是一个创新的 AI 面试平台，旨在通过模拟真实的面试场景，帮助求职者提升面试技巧、增强信心。平台利用先进的语音识别和自然语言处理技术，提供即时反馈和专业评估，帮助用户在求职路上走得更远。
 
-## 功能特性
+## ✨ 功能特性
 
-- 🎤 **语音识别**: 使用 Web Speech API 实现中文语音识别
-- 🤖 **智能交互**: AI 驱动的面试官，提供个性化反馈
-- 📝 **完整记录**: 自动记录面试问答，支持多种格式导出
-- 🎨 **现代界面**: 响应式设计，支持移动端访问
-- 🔄 **持续录音**: 支持连续语音录制，不会覆盖之前的内容
-- 📊 **表现分析**: 提供详细的面试表现分析和建议
+- **多种面试风格**: 提供多种面试风格（如正式、友好、校园），模拟不同公司的面试氛围。
+- **智能语音交互**: 支持语音输入，AI 面试官能够理解并跟进您的回答，实现流畅的对话式面试。
+- **即时反馈与评估**: 在每次回答后，AI 会提供针对性的反馈，帮助您即时改进。
+- **综合评估报告**: 面试结束后，系统会生成一份详细的评估报告，全面分析您的表现，并提供改进建议。
+- **完整的面试记录**: 所有对话都将被记录下来，方便您随时回顾、复盘。
+- **导出与分享**: 您可以将完整的面试记录和评估报告导出为 JSON 或文本格式，方便分享和存档。
 
-## 技术栈
+## 🚀 安装指南
 
-- **前端框架**: Vue 3 + Composition API
-- **路由管理**: Vue Router 4
-- **构建工具**: Vite
-- **语音识别**: Web Speech API
-- **样式**: 原生 CSS (无第三方UI库)
+### 系统要求
 
-## 项目结构
+- Node.js >= 16.0.0
+- Python >= 3.8
+- 一个有效的 DashScope API 密钥
 
-\`\`\`
-kora-voice-interview/
-├── public/                 # 静态资源
+### 依赖安装
+
+1.  **克隆项目到本地**:
+    ```bash
+    git clone https://github.com/Brwaey/Kora.git
+    cd kora-voice-interview
+    ```
+
+2.  **安装前端依赖**:
+    ```bash
+    npm install
+    ```
+
+3.  **安装后端依赖**:
+    ```bash
+    cd backend
+    pip install -r requirements.txt
+    ```
+
+### 环境配置
+
+1.  在 `backend` 目录下创建一个名为 `.env` 的文件。
+2.  在 `.env` 文件中，添加您的 DashScope API 密钥，格式如下：
+    ```
+    DASHSCOPE_API_KEY=your_api_key_here
+    ```
+
+## 📖 使用说明
+
+1.  **启动后端服务**:
+    ```bash
+    cd backend
+    python app.py
+    ```
+    后端服务将在 `http://127.0.0.1:5000` 上运行。
+
+2.  **启动前端开发服务器**:
+    ```bash
+    npm run dev
+    ```
+    前端应用将在 `http://localhost:3000` (或另一个可用端口) 上运行。
+
+3.  在浏览器中打开前端应用的地址，开始您的 AI 面试之旅！
+
+## 📂 项目结构
+
+```
+.
+├── README.md
+├── backend/
+│   ├── .env             # 存储环境变量 (需自行创建)
+│   ├── app.py           # Flask 后端主应用
+│   ├── requirements.txt # Python 依赖
+│   └── test.http        # 用于测试 API 的文件
+├── index.html
+├── package.json
 ├── src/
-│   ├── views/             # 页面组件
-│   │   ├── Home.vue       # 首页
-│   │   ├── Interview.vue  # 面试页面
-│   │   └── Summary.vue    # 总结页面
-│   ├── App.vue           # 根组件
-│   └── main.js           # 入口文件
-├── index.html            # HTML 模板
-├── package.json          # 项目配置
-├── vite.config.js        # Vite 配置
-└── README.md            # 项目说明
-\`\`\`
-
-## 快速开始
-
-### 1. 安装依赖
-
-```bash
-npm install
+│   ├── App.vue          # Vue 应用根组件
+│   ├── main.js          # Vue 应用入口
+│   ├── assets/
+│   │   └── main.css     # 全局样式
+│   └── views/
+│       ├── Home.vue     # 首页
+│       ├── Interview.vue# 面试页面
+│       └── Summary.vue  # 总结报告页面
+└── vite.config.js
 ```
 
-### 2. 启动开发服务器
+### 关键文件说明
 
-```bash
-npm run dev
-```
+-   `backend/app.py`: 实现了所有后端逻辑，包括与 DashScope API 的交互、CORS 配置以及 API 端点。
+-   `src/views/Interview.vue`: 包含了面试页面的所有交互逻辑和 UI，是项目的核心组件之一。
+-   `src/views/Summary.vue`: 用于展示面试完成后的总结报告，包括对话记录和 AI 分析。
 
-项目将在 `http://localhost:3000` 启动
+## 🤝 贡献指南
 
-### 3. 构建生产版本
+我们欢迎任何形式的贡献！
 
-```bash
-npm run build
-```
+### 提交问题
 
-构建文件将输出到 `dist` 目录
+如果您在使用中遇到问题，或者有任何改进建议，请通过 [GitHub Issues](https://github.com/Brwaey/Kora/issues) 提交问题。
 
-### 4. 预览生产版本
+### 代码提交规范
 
-```bash
-npm run preview
-```
+-   请确保您的代码风格与项目现有代码保持一致。
+-   提交前请进行充分测试，确保不会引入新的 bug。
+-   Commit message 请遵循清晰、有意义的原则。
 
-## 使用说明
+## 📄 许可证信息
 
-### 面试流程
+本项目采用 [MIT License](https://opensource.org/licenses/MIT) 开源许可证。
 
-1. **欢迎页面**: 选择面试风格，了解面试须知
-2. **语音面试**: 回答 3 个行为面试问题
-3. **面试总结**: 查看回答记录和表现分析
+## 📞 联系方式
 
-
-### 语音功能
-
-- 点击"开始录音"按钮开始语音识别
-- 系统会持续录音直到再次点击"停止录音"
-- 支持连续语音输入，不会覆盖之前的内容
-- 提供文本输入作为语音识别的备选方案
-
-
-### 面试风格
-
-- **亲切友好**: 温和的交流方式
-- **正式严肃**: 专业的面试氛围
-- **校园风格**: 轻松的校园面试体验
-
-
-## 浏览器兼容性
-
-- Chrome 25+
-- Firefox 44+
-- Safari 14.1+
-- Edge 79+
-
-
-**注意**: 语音识别功能需要 HTTPS 环境或 localhost
-
-## 部署建议
-
-### Vercel 部署
-
-1. 将代码推送到 GitHub
-2. 在 Vercel 中导入项目
-3. 自动部署完成
-
-
-### Netlify 部署
-
-1. 运行 `npm run build`
-2. 将 `dist` 目录上传到 Netlify
-3. 配置重定向规则支持 SPA
-
-
-### GitHub Pages 部署
-
-1. 修改 `vite.config.js` 设置正确的 base 路径
-2. 运行 `npm run build`
-3. 将 `dist` 目录内容推送到 gh-pages 分支
-
-
-## 开发说明
-
-### 语音识别实现
-
-项目使用 Web Speech API 的 `SpeechRecognition` 接口：
-
-- 设置 `continuous: true` 支持连续识别
-- 设置 `interimResults: true` 显示实时结果
-- 使用 `lang: 'zh-CN'` 支持中文识别
-
-
-### 数据存储
-
-面试数据通过 Vue Router 的 params 传递，支持：
-
-- JSON 格式导出
-- 文本格式导出
-- 打印功能
+-   **维护者**: [Brwaey](https://github.com/Brwaey)
+-   **问题反馈**: [GitHub Issues](https://github.com/Brwaey/Kora/issues)
