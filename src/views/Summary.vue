@@ -41,10 +41,33 @@
               </div>
             </div>
           </section>
-  
+
+          <!-- 新增：完整对话记录部分 -->
+          <section class="full-conversation">
+            <h2>🗣️ 完整对话记录</h2>
+            <div class="conversation-list">
+              <div 
+                v-for="(msg, index) in interviewData.conversation" 
+                :key="index"
+                :class="['conversation-item', msg.sender === 'ai' ? 'ai-message' : 'user-message']"
+              >
+                <div class="sender-avatar">
+                  <div :class="['avatar-icon', msg.sender === 'ai' ? 'ai-avatar' : 'user-avatar']">
+                    {{ msg.sender === 'ai' ? 'AI' : 'U' }}
+                  </div>
+                  <span class="sender-label">{{ msg.sender === 'ai' ? '面试官' : '您' }}</span>
+                </div>
+                <div class="message-content">
+                  <p v-html="formatMessage(msg.text)"></p>
+                  <span class="message-time">{{ formatTime(msg.timestamp) }}</span>
+                </div>
+              </div>
+            </div>
+          </section>
+          
           <!-- Interview Records -->
-          <section class="interview-records">
-            <h2>📝 面试记录</h2>
+          <!-- <section class="interview-records">
+            <h2>📝 按问题分组面试记录</h2>
             
             <div class="records-list">
               <div 
@@ -72,7 +95,7 @@
                 </div>
               </div>
             </div>
-          </section>
+          </section> -->
   
           <!-- 新增：AI 专业分析 -->
           <section class="ai-analysis">
@@ -168,6 +191,23 @@
     router.push('/')
   }
   
+  // 格式化消息时间
+  const formatTime = (dateString) => {
+    const date = new Date(dateString);
+    return date.toLocaleTimeString('zh-CN', {
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit'
+    });
+  };
+
+  // 复用消息格式化方法
+  const formatMessage = (text) => {
+    return text
+      .replace(/\n/g, '<br>')
+      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+  };
+
   // Computed properties for analysis
   const completionRate = computed(() => {
     const answered = interviewData.value.questions.filter(q => q.answer && q.answer.trim()).length
@@ -244,42 +284,60 @@
   
   // Export functions
   const exportJSON = () => {
-    const dataStr = JSON.stringify(interviewData.value, null, 2)
-    const dataBlob = new Blob([dataStr], { type: 'application/json' })
-    const url = URL.createObjectURL(dataBlob)
-    const link = document.createElement('a')
-    link.href = url
-    link.download = `面试记录_${new Date().toISOString().split('T')[0]}.json`
-    link.click()
-    URL.revokeObjectURL(url)
-  }
+    // 包含完整对话记录的导出数据
+    const exportData = {
+      ...interviewData.value,
+      exportAt: new Date().toISOString(),
+      metadata: {
+        version: '1.0',
+        exportType: 'full-interview-record'
+      }
+    };
+    const dataStr = JSON.stringify(exportData, null, 2);
+    const dataBlob = new Blob([dataStr], { type: 'application/json' });
+    const url = URL.createObjectURL(dataBlob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `面试记录_${new Date().toISOString().split('T')[0]}.json`;
+    link.click();
+    URL.revokeObjectURL(url);
+  };
   
   const exportText = () => {
-    let content = `Kora 语音面试记录\n`
-    content += `==================\n\n`
-    content += `面试风格：${getStyleName(interviewData.value.style)}\n`
-    content += `完成时间：${formatDate(interviewData.value.completedAt)}\n`
-    content += `问题数量：${interviewData.value.questions.length} 个\n\n`
+    let content = `Kora 语音面试记录\n`;
+    content += `==================\n\n`;
+    content += `面试风格：${getStyleName(interviewData.value.style)}\n`;
+    content += `完成时间：${formatDate(interviewData.value.completedAt)}\n`;
+    content += `问题数量：${interviewData.value.questions.length} 个\n\n`;
     
+    content += `========== 问题与回答 ==========\n\n`;
     interviewData.value.questions.forEach((question, index) => {
-      content += `问题 ${index + 1}：${question.text}\n`
-      content += `回答：${question.answer || '未回答'}\n`
-      content += `反馈：${question.feedback}\n\n`
-    })
+      content += `问题 ${index + 1}：${question.text}\n`;
+      content += `回答：${question.answer || '未回答'}\n`;
+      content += `反馈：${question.feedback}\n\n`;
+    });
     
-    content += `表现分析：\n`
-    content += `- 回答完整度：${completionRate.value}%\n`
-    content += `- 平均回答长度：${averageLength.value} 字\n`
-    content += `- 整体评价：${overallRating.value}\n`
+    content += `========== 表现分析 ==========\n`;
+    content += `- 回答完整度：${completionRate.value}%\n`;
+    content += `- 平均回答长度：${averageLength.value} 字\n`;
+    content += `- 整体评价：${overallRating.value}\n\n`;
     
-    const dataBlob = new Blob([content], { type: 'text/plain;charset=utf-8' })
-    const url = URL.createObjectURL(dataBlob)
-    const link = document.createElement('a')
-    link.href = url
-    link.download = `面试记录_${new Date().toISOString().split('T')[0]}.txt`
-    link.click()
-    URL.revokeObjectURL(url)
-  }
+    // 新增：完整对话记录
+    content += `========== 完整对话记录 ==========\n\n`;
+    interviewData.value.conversation.forEach((msg) => {
+      const sender = msg.sender === 'ai' ? '面试官' : '您';
+      content += `${sender}：${msg.text}\n`;
+      content += `[${formatTime(msg.timestamp)}]\n\n`;
+    });
+    
+    const dataBlob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(dataBlob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `面试记录_${new Date().toISOString().split('T')[0]}.txt`;
+    link.click();
+    URL.revokeObjectURL(url);
+  };
   
   const printSummary = () => {
     window.print()
@@ -446,6 +504,70 @@
     transform: translate(-50%, -50%);
   }
   
+  .full-conversation {
+    margin: 3rem 0;
+  }
+
+  .full-conversation h2 {
+    font-size: 1.875rem;
+    margin-bottom: 1.5rem;
+    color: #1e293b;
+  }
+
+  .conversation-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .conversation-item {
+    display: flex;
+    gap: 1rem;
+    padding: 1rem;
+    border-radius: 0.75rem;
+    max-width: 90%;
+  }
+
+  .ai-message {
+    align-self: flex-start;
+    background-color: #f8fafc;
+  }
+
+  .user-message {
+    align-self: flex-end;
+    background-color: #e6fffa;
+  }
+
+  .sender-avatar {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 50px;
+  }
+
+  .sender-label {
+    font-size: 0.75rem;
+    color: #64748b;
+    margin-top: 0.25rem;
+  }
+
+  .message-content {
+    flex: 1;
+  }
+
+  .message-content p {
+    margin: 0;
+    line-height: 1.6;
+  }
+
+  .message-time {
+    display: block;
+    font-size: 0.75rem;
+    color: #94a3b8;
+    margin-top: 0.5rem;
+    text-align: right;
+  }
+
   .analysis-icon {
     font-size: 3rem;
     margin-bottom: 1rem;
@@ -516,6 +638,92 @@
     color: #1e293b;
   }
   
+  .full-conversation {
+    margin: 3rem 0;
+  }
+
+  .full-conversation h2 {
+    font-size: 1.875rem;
+    margin-bottom: 1.5rem;
+    color: #1e293b;
+  }
+
+  .conversation-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .conversation-item {
+    display: flex;
+    gap: 1rem;
+    padding: 1rem;
+    border-radius: 0.75rem;
+    max-width: 90%;
+  }
+
+  .ai-message {
+    align-self: flex-start;
+    background-color: #f8fafc;
+    border: 1px solid #e2e8f0;
+  }
+
+  .user-message {
+    align-self: flex-end;
+    background-color: #e6fffa;
+    border: 1px solid #a7f3d0;
+    margin-left: auto;
+  }
+
+  .sender-avatar {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 50px;
+  }
+
+  .avatar-icon {
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    color: white;
+  }
+
+  .ai-avatar {
+    background-color: #059669;
+  }
+
+  .user-avatar {
+    background-color: #3b82f6;
+  }
+
+  .sender-label {
+    font-size: 0.75rem;
+    color: #64748b;
+    margin-top: 0.25rem;
+  }
+
+  .message-content {
+    flex: 1;
+  }
+
+  .message-content p {
+    margin: 0;
+    line-height: 1.6;
+  }
+
+  .message-time {
+    display: block;
+    font-size: 0.75rem;
+    color: #94a3b8;
+    margin-top: 0.5rem;
+    text-align: right;
+  }
+
   .interview-records, .performance-analysis, .export-section, .actions {
     margin-bottom: 3rem;
   }
