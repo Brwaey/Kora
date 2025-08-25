@@ -1,653 +1,325 @@
 <template>
-    <div class="min-h-screen bg-gray-50">
-      <!-- Header -->
-      <header class="bg-white shadow-sm">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div class="flex items-center justify-between">
-            <div class="flex items-center">
-              <div class="w-8 h-8 bg-green-600 rounded-lg flex items-center justify-center mr-3">
-                <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
-                  <path fill-rule="evenodd" d="M7 4a3 3 0 016 0v4a3 3 0 11-6 0V4zm4 10.93A7.001 7.001 0 0017 8a1 1 0 10-2 0A5 5 0 015 8a1 1 0 00-2 0 7.001 7.001 0 006 6.93V17H6a1 1 0 100 2h8a1 1 0 100-2h-3v-2.07z" clip-rule="evenodd" />
-                </svg>
-              </div>
-              <!-- 修复：移除标题下划线（通过样式类单独控制） -->
-              <h1 class="text-xl font-semibold text-gray-900 header-title">Kora 语音面试</h1>
+  <div class="flex flex-col h-screen bg-gray-100 font-sans">
+    <!-- Header - 调整标题位置与summary界面一致 -->
+    <header class="bg-white shadow-sm flex-shrink-0 z-10">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center">
+            <div class="w-8 h-8 bg-green-600 rounded-lg flex items-center justify-center mr-3">
+              <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M7 4a3 3 0 016 0v4a3 3 0 11-6 0V4zm4 10.93A7.001 7.001 0 0017 8a1 1 0 10-2 0A5 5 0 015 8a1 1 0 00-2 0 7.001 7.001 0 006 6.93V17H6a1 1 0 100 2h8a1 1 0 100-2h-3v-2.07z" clip-rule="evenodd" />
+              </svg>
             </div>
-            <div class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium">
-              问题 {{ currentQuestion }}/3
-            </div>
+            <h1 class="text-xl font-semibold text-gray-900">Kora 语音面试</h1>
           </div>
-        </div>
-      </header>
-  
-      <!-- Progress Bar -->
-      <div class="bg-white border-b">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div class="w-full bg-gray-200 h-1">
-            <div 
-              class="bg-green-600 h-1 transition-all duration-300"
-              :style="{ width: `${(currentQuestion / 3) * 100}%` }"
-            ></div>
+          <div class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium">
+            {{ interviewStatus }}
           </div>
         </div>
       </div>
-  
-      <!-- Main Content -->
-      <main class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <!-- Welcome Phase -->
-        <div v-if="phase === 'welcome'" class="text-center">
-          <div class="bg-white rounded-xl p-8 shadow-sm border border-gray-100 max-w-2xl mx-auto">
-            <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
-              <svg class="w-8 h-8 text-green-600" fill="currentColor" viewBox="0 0 20 20">
-                <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-            </div>
-            
-            <h2 class="text-2xl font-bold text-gray-900 mb-4">欢迎参加面试</h2>
-            
-            <p class="text-gray-600 mb-8">
-              您好，我是Kora的语音面试官，接下来我会用中文向您提问一些常见面试问题，请用语音作答。
-            </p>
-  
-            <!-- Interview Style Selection -->
+    </header>
+
+    <!-- Welcome Phase -->
+    <div v-if="phase === 'welcome'" class="flex-grow flex items-center justify-center p-4">
+        <div class="text-center bg-white rounded-2xl p-8 sm:p-12 shadow-xl border border-gray-200 max-w-2xl mx-auto transform hover:scale-105 transition-transform duration-300">
+            <h2 class="text-3xl font-bold text-gray-900 mb-4">开启您的专属面试体验</h2>
+            <p class="text-gray-600 mb-8">请选择您偏好的面试风格，Kora将为您模拟最真实的面试场景。</p>
             <div class="mb-8">
-              <label class="block text-sm font-medium text-gray-700 mb-3">选择面试风格：</label>
-              <select 
-                v-model="selectedStyle" 
-                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
-              >
-                <option value="friendly">亲切友好</option>
-                <option value="formal">正式严肃</option>
-                <option value="casual">校园风格</option>
+              <select v-model="selectedStyle" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 text-lg">
+                <option value="friendly">亲切友好型</option>
+                <option value="formal">专业严肃型</option>
+                <option value="casual">轻松校园型</option>
               </select>
-              <p class="text-sm text-gray-500 mt-2">请选择您的面试氛围</p>
             </div>
-  
-            <!-- Interview Guidelines -->
-            <div class="text-left mb-8">
-              <h3 class="font-semibold text-gray-900 mb-4">面试须知：</h3>
-              <ul class="space-y-2 text-sm text-gray-600">
-                <li class="flex items-start">
-                  <span class="w-2 h-2 bg-green-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
-                  请确保您的麦克风已开启并正常工作
-                </li>
-                <li class="flex items-start">
-                  <span class="w-2 h-2 bg-green-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
-                  在安静的环境中进行面试，避免背景噪音
-                </li>
-                <li class="flex items-start">
-                  <span class="w-2 h-2 bg-green-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
-                  每个问题请尽量在2-3分钟内回答完成
-                </li>
-                <li class="flex items-start">
-                  <span class="w-2 h-2 bg-green-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
-                  AI面试官会根据您的回答提供个性化反馈
-                </li>
-              </ul>
-            </div>
-  
-            <button 
-              @click="startQuestions"
-              class="inline-flex items-center px-6 py-3 bg-green-600 text-white font-semibold rounded-lg hover:bg-green-700 transition-colors duration-200"
-            >
-              开始面试
-              <svg class="w-5 h-5 ml-2" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clip-rule="evenodd" />
-              </svg>
+            <button @click="startInterview" class="w-full px-6 py-3 bg-green-600 text-white font-semibold rounded-lg hover:bg-green-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
+              立即开始
             </button>
-          </div>
         </div>
-  
-        <!-- Question Phase -->
-        <div v-else-if="phase === 'question'" class="max-w-3xl mx-auto">
-          <div class="bg-white rounded-xl p-8 shadow-sm border border-gray-100">
-            <!-- AI Response -->
-            <div v-if="aiResponse" class="mb-8 p-4 bg-blue-50 rounded-lg border-l-4 border-blue-400">
-              <div class="flex items-start">
-                <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center mr-3 flex-shrink-0">
-                  <svg class="w-4 h-4 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
-                    <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                </div>
-                <div class="flex-1">
-                  <p class="text-blue-800 font-medium mb-1">AI 面试官</p>
-                  <p class="text-blue-700">{{ aiResponse }}</p>
-                </div>
-              </div>
-            </div>
-  
-            <!-- Current Question -->
-            <div class="text-center mb-8">
-              <h3 class="text-xl font-semibold text-gray-900 mb-4">
-                {{ questions[currentQuestion - 1] }}
-              </h3>
-            </div>
-  
-            <!-- Voice Recording -->
-            <div class="text-center mb-8 flex flex-col items-center">
-              <button 
-                @click="toggleRecording"
-                :class="[
-                  'w-20 h-20 rounded-full flex items-center justify-center transition-all duration-200 shadow-lg',
-                  isRecording 
-                    ? 'bg-red-500 hover:bg-red-600 animate-pulse' 
-                    : 'bg-green-600 hover:bg-green-700'
-                ]"
-              >
-                <!-- 修复：恢复不录音状态的SVG路径（之前混入CSS代码导致图标失效） -->
-                <svg v-if="!isRecording" class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 20 20">
-                  <path fill-rule="evenodd" d="M7 4a3 3 0 016 0v4a3 3 0 11-6 0V4zm4 10.93A7.001 7.001 0 0017 8a1 1 0 10-2 0A5 5 0 015 8a1 1 0 00-2 0 7.001 7.001 0 006 6.93V17H6a1 1 0 100 2h8a1 1 0 100-2h-3v-2.07z" clip-rule="evenodd" />
-                </svg>
-                <svg v-else class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 20 20">
-                  <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8 7a2 2 0 114 0v4a2 2 0 11-4 0V7z" clip-rule="evenodd" />
-                </svg>
-              </button>
-              <p class="text-sm text-gray-600 mt-4">
-                {{ isRecording ? '点击停止录音' : '点击开始录音' }}
-              </p>
-              
-              <!-- 临时识别结果 -->
-              <p v-if="isRecording && interimResult" class="text-sm text-blue-500 mt-2 italic">
-                正在识别: {{ interimResult }}
-              </p>
-              
-              <!-- 录音错误信息 -->
-              <p v-if="recordingErrorMessage" class="text-sm text-red-500 mt-2">
-                {{ recordingErrorMessage }}
-              </p>
-              
-              <!-- 浏览器不支持提示 -->
-              <p v-if="browserSupport === false" class="text-sm text-red-500 mt-2">
-                您的浏览器不支持语音识别功能，请使用Chrome、Edge或Safari浏览器，或者直接使用文字输入。
-              </p>
-            </div>
-  
-            <!-- Transcript -->
-            <div v-if="currentTranscript" class="mb-6">
-              <h4 class="font-medium text-gray-900 mb-2">您的回答：</h4>
-              <div class="p-4 bg-gray-50 rounded-lg border">
-                <p class="text-gray-700">{{ currentTranscript }}</p>
-              </div>
-            </div>
-  
-            <!-- Alternative Text Input -->
-            <div class="mb-6">
-              <label class="block text-sm font-medium text-gray-700 mb-2">
-                或者直接输入文字回答：
-              </label>
-              <textarea 
-                v-model="textInput"
-                rows="4"
-                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
-                placeholder="在这里输入您的回答..."
-                @blur="provideImmediateFeedback"
-              ></textarea>
-            </div>
-  
-            <!-- Action Buttons -->
-            <div class="flex justify-between">
-              <button 
-                @click="previousQuestion"
-                :disabled="currentQuestion === 1"
-                class="px-4 py-2 text-gray-600 hover:text-gray-800 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                上一题
-              </button>
-              <button 
-                @click="nextQuestion"
-                :disabled="!canProceed"
-                class="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {{ currentQuestion === 3 ? '完成面试' : '下一题' }}
-              </button>
-            </div>
-          </div>
-        </div>
-      </main>
-  
-      <!-- 修复：将弹窗移到template内部（之前在外部导致Vue模板解析错误） -->
-      <div v-if="showCompletionModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-        <div class="bg-white rounded-xl p-6 max-w-md w-full mx-4 shadow-xl">
-          <div class="text-center mb-6">
-            <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <svg class="w-8 h-8 text-green-600" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
-              </svg>
-            </div>
-            <h2 class="text-2xl font-bold text-gray-900 mb-2">面试完成！</h2>
-            <p class="text-gray-600">恭喜您完成了本次面试，即将为您生成面试总结。</p>
-          </div>
-          <div class="flex justify-center">
-            <button 
-              @click="goToSummary"
-              class="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors duration-200"
-            >
-              查看总结
-            </button>
-          </div>
-        </div>
-      </div>
-      
-      <!-- 新增：AI反馈弹窗 -->
-      <div v-if="showFeedbackModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-        <div class="bg-white rounded-xl p-6 max-w-md w-full mx-4 shadow-xl">
-          <div class="text-center mb-6">
-            <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <svg class="w-8 h-8 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
-                    <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-            </div>
-            <h2 class="text-2xl font-bold text-gray-900 mb-2">面试官反馈</h2>
-            <p class="text-gray-600 text-left">{{ currentFeedback }}</p>
-          </div>
-          <div class="flex justify-center">
-            <button 
-              @click="proceedAfterFeedback"
-              class="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors duration-200"
-            >
-              好的，继续
-            </button>
-          </div>
-        </div>
-      </div>
     </div>
-  </template>
-  
-  <style scoped>
-  /* 添加渐变背景 */
-  .min-h-screen {
-    background: linear-gradient(135deg, #f0f9ff 0%, #e6fffa 100%);
+
+    <!-- Chat Interface - 优化布局使其居中并调整宽度 -->
+    <main v-else ref="chatArea" class="flex-grow overflow-y-auto p-4 sm:p-6">
+      <div class="max-w-3xl mx-auto space-y-6"> <!-- 限制最大宽度并居中 -->
+        <div v-for="(message, index) in messages" :key="index" class="chat-message-wrapper">
+          <div :class="['flex items-end space-x-3', message.sender === 'ai' ? 'justify-start' : 'justify-end']">
+            <!-- Avatar -->
+            <div v-if="message.sender === 'ai'" class="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center flex-shrink-0">
+              <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+              </svg>
+            </div>
+            
+            <!-- Message Bubble -->
+            <div :class="['max-w-[80%] px-4 py-3 rounded-2xl shadow-sm', 
+                          message.sender === 'ai' ? 'bg-white text-gray-800 rounded-tl-none' : 
+                                                  'bg-green-600 text-white rounded-tr-none']">
+              <p v-html="formatMessage(message.text)"></p>
+            </div>
+            
+            <!-- Avatar for user -->
+            <div v-if="message.sender === 'user'" class="w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center flex-shrink-0">
+              <svg class="w-5 h-5 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+              </svg>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Typing indicator -->
+        <div v-if="isAiTyping" class="flex justify-start">
+          <div class="max-w-xs p-4 rounded-2xl shadow-md bg-white">
+            <div class="typing-indicator"><span></span><span></span><span></span></div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Action Button Area - 修改为双按钮并排 -->
+    <footer v-if="showNextButton" class="bg-transparent py-4 px-4 sm:px-6 flex-shrink-0">
+        <div class="max-w-3xl mx-auto"> <!-- 与对话区域宽度保持一致 -->
+            <div class="flex gap-3"> <!-- 使用flex布局实现并排 -->
+                <button @click="continueAnswering" class="flex-1 px-6 py-3 bg-gray-600 text-white font-semibold rounded-lg hover:bg-gray-700 transition-all duration-300 shadow-md">
+                    继续回答该问题
+                </button>
+                <button @click="requestNextQuestion" class="flex-1 px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-all duration-300 shadow-md">
+                    {{ isLastQuestion ? '完成面试并查看总结' : '好的，请问下一题' }}
+                </button>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Input Area -->
+    <footer v-if="phase === 'question' && !isAiTyping && !showNextButton" class="bg-white border-t p-3 sm:p-4 flex-shrink-0">
+      <div class="max-w-3xl mx-auto flex items-center space-x-2 sm:space-x-4"> <!-- 与对话区域宽度保持一致 -->
+        <button @click="toggleRecording" :class="['p-3 rounded-full text-white transition-all duration-300 shadow-md', isRecording ? 'bg-red-500 animate-pulse' : 'bg-green-600 hover:bg-green-700']">
+          <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20"><path v-if="!isRecording" d="M7 4a3 3 0 016 0v4a3 3 0 11-6 0V4z"/><path v-else d="M10 18a8 8 0 100-16 8 8 0 000 16zM8 7a2 2 0 114 0v4a2 2 0 11-4 0V7z" /></svg>
+        </button>
+        <textarea v-model="userInput" @keyup.enter.exact="sendMessage" placeholder="请在此输入或点击麦克风回答..." class="flex-grow p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 transition-shadow" rows="1"></textarea>
+        <button @click="sendMessage" :disabled="!userInput.trim() && !isRecording" class="px-5 py-3 bg-green-600 text-white font-semibold rounded-lg hover:bg-green-700 disabled:opacity-50 transition-all duration-300 shadow-md">
+          发送
+        </button>
+      </div>
+    </footer>
+  </div>
+</template>
+
+<script setup>
+import { ref, computed, onMounted, nextTick } from 'vue';
+import { useRouter } from 'vue-router';
+import axios from 'axios';
+
+const router = useRouter();
+const chatArea = ref(null);
+
+// --- State Management ---
+const phase = ref('welcome');
+const selectedStyle = ref('friendly');
+const messages = ref([]);
+const userInput = ref('');
+const isRecording = ref(false);
+const interimResult = ref('');
+const recordingErrorMessage = ref('');
+const currentQuestionIndex = ref(0);
+const isAiTyping = ref(false);
+const showNextButton = ref(false);
+
+const questions = [
+  "你最近完成的一件最有成就感的事是什么？你在其中扮演了什么角色？",
+  "请讲讲一次你解决冲突或困难的经历。",
+  "如果你加入一个你不熟悉的项目团队，你会如何快速融入？"
+];
+
+// --- Computed Properties ---
+const interviewStatus = computed(() => {
+  if (phase.value === 'finished') return '面试已完成';
+  if (phase.value === 'question') return `问题 ${currentQuestionIndex.value + 1}/${questions.length}`;
+  return '准备开始';
+});
+const isLastQuestion = computed(() => currentQuestionIndex.value === questions.length - 1);
+
+// --- Core Functions ---
+const startInterview = () => {
+  phase.value = 'question';
+  addMessage('ai', `你好！我是你的AI面试官Kora。很高兴与你交流。\n\n我们开始吧，这是第一个问题：\n**${questions[0]}**`);
+};
+
+const sendMessage = async () => {
+  const text = userInput.value.trim();
+  if (!text) return;
+  addMessage('user', text);
+  userInput.value = '';
+  isAiTyping.value = true;
+  await processUserAnswer(text);
+};
+
+const processUserAnswer = async (answer) => {
+  const currentQ = questions[currentQuestionIndex.value];
+  try {
+    const response = await axios.post('http://127.0.0.1:5000/api/feedback', {
+      question: currentQ, answer, style: selectedStyle.value
+    });
+    addMessage('ai', response.data.feedback);
+  } catch (error) {
+    addMessage('ai', '抱歉，网络似乎有些问题，我暂时无法连接。');
+  } finally {
+    isAiTyping.value = false;
+    showNextButton.value = true; // 显示按钮组
   }
-  
-  /* 美化卡片 */
-  .bg-white.rounded-xl {
-    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-    border: none;
-    transition: transform 0.3s, box-shadow 0.3s;
-  }
-  
-  .bg-white.rounded-xl:hover {
-    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-    transform: translateY(-2px);
-  }
-  
-  /* 美化录音按钮 */
-  .w-20.h-20.rounded-full {
-    box-shadow: 0 10px 15px -3px rgba(5, 150, 105, 0.3), 0 4px 6px -2px rgba(5, 150, 105, 0.2);
-    transition: all 0.3s;
-  }
-  
-  .w-20.h-20.rounded-full:hover {
-    transform: scale(1.05);
-    box-shadow: 0 15px 20px -3px rgba(5, 150, 105, 0.4), 0 8px 10px -2px rgba(5, 150, 105, 0.2);
-  }
-  
-  /* 美化AI回复区域 */
-  .bg-blue-50.rounded-lg {
-    background: linear-gradient(to right, #e6f7ff, #f0f9ff);
-    border-left: 4px solid #3b82f6;
-    box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.1);
-    transition: all 0.3s;
-  }
-  
-  .bg-blue-50.rounded-lg:hover {
-    box-shadow: 0 6px 8px -1px rgba(59, 130, 246, 0.15);
-  }
-  
-  /* 修复：移除Header标题下划线（用户需求） */
-  .header-title {
-    position: static !important; /* 取消定位 */
-    padding-bottom: 0 !important; /* 取消底部内边距 */
-  }
-  .header-title::after {
-    display: none !important; /* 隐藏下划线伪元素 */
-  }
-  
-  /* 保留问题标题的下划线（仅移除Header标题） */
-  .text-xl.font-semibold.text-gray-900:not(.header-title) {
-    position: relative;
-    display: inline-block;
-    padding-bottom: 0.5rem;
-  }
-  .text-xl.font-semibold.text-gray-900:not(.header-title)::after {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 50px;
-    height: 3px;
-    background: linear-gradient(to right, #059669, #10b981);
-    border-radius: 3px;
-  }
-  
-  /* 美化进度条 */
-  .bg-green-600.h-1 {
-    background: linear-gradient(to right, #059669, #10b981);
-    border-radius: 1px;
-    box-shadow: 0 1px 2px rgba(5, 150, 105, 0.3);
-  }
-  
-  /* 美化按钮 */
-  button.bg-green-600 {
-    background: linear-gradient(to right, #059669, #10b981);
-    box-shadow: 0 4px 6px -1px rgba(5, 150, 105, 0.3), 0 2px 4px -1px rgba(5, 150, 105, 0.2);
-    transition: all 0.3s;
-  }
-  
-  button.bg-green-600:hover {
-    background: linear-gradient(to right, #047857, #059669);
-    box-shadow: 0 6px 10px -1px rgba(5, 150, 105, 0.4), 0 2px 6px -1px rgba(5, 150, 105, 0.2);
-    transform: translateY(-1px);
-  }
-  
-  /* 美化文本输入框 */
-  textarea {
-    transition: all 0.3s;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-  }
-  
-  textarea:focus {
-    box-shadow: 0 4px 6px -1px rgba(5, 150, 105, 0.1), 0 2px 4px -1px rgba(5, 150, 105, 0.06);
-    border-color: #10b981;
-  }
-  
-  /* 添加动画效果 */
-  @keyframes pulse {
-    0%, 100% {
-      opacity: 1;
+};
+
+// 新增：继续回答当前问题
+const continueAnswering = () => {
+  showNextButton.value = false; // 隐藏按钮组，显示输入区域
+};
+
+const requestNextQuestion = () => {
+    showNextButton.value = false;
+    if (isLastQuestion.value) {
+        endInterview();
+    } else {
+        isAiTyping.value = true;
+        addMessage('ai', '好的，我们继续。');
+        setTimeout(() => {
+            currentQuestionIndex.value++;
+            addMessage('ai', `接下来是这个问题：\n**${questions[currentQuestionIndex.value]}**`);
+            isAiTyping.value = false;
+        }, 1200);
     }
-    50% {
-      opacity: 0.7;
-    }
-  }
-  
-  .animate-pulse {
-    animation: pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-  }
-  </style>
-  
-  <script>
-  import axios from 'axios'
-  
-  export default {
-    name: 'Interview',
-    data() {
-      return {
-        phase: 'welcome', // 'welcome', 'question'
-        currentQuestion: 1,
-        selectedStyle: 'friendly',
-        isRecording: false,
-        showCompletionModal: false,
-        preparedInterviewData: null,
-        currentTranscript: '',
-        showFeedbackModal: false,
-        currentFeedback: '',
-        textInput: '',
-        aiResponse: '',
-        recognition: null,
-        answers: [],
-        aiResponses: [], // 新增：存储所有问题的反馈
-        questions: [
-          '请简单介绍一下您自己，包括您的背景和主要经历。',
-          '请描述一次您在工作或学习中遇到挑战并成功解决的经历。',
-          '您认为自己最大的优势是什么？请举例说明。'
-        ],
-        interviewStyles: {
-          friendly: {
-            systemPrompt: `你是一位亲切友好的面试官，名叫Kora。你的特点是：
-  - 语气温和亲切亲切，像朋友一样交流
-  - 会适当使用鼓励性的语言，如"很好"、"不错"、"您的回答很有见地"
-  - 追问时会说"能再详细说说吗？"、"这听起来很有趣，能举个例子吗？"
-  - 保持专业但不失温暖的态度，经常使用"我理解"、"确实如此"等共情表达
-  - 会给予积极的肯定和建设性的建议
-  - 使用一些轻松的过渡语，如"让我们继续聊聊"、"接下来想了解"
-  - 回答简洁，控制在50字以内`,
-            greeting: '您好！很高兴见到您，我是Kora。今天的面试会很轻松，请放松心情，我们开始吧！'
-          },
-          formal: {
-            systemPrompt: `你是一位正式严肃的面试官，名叫Kora。你的特点是：
-  - 语气正式专业，保持商务礼仪和适当的距离感
-  - 使用标准的面试用语，如"请详细阐述"、"能否具体说明"、"请举例说明"
-  - 追问时会说"请进一步说明"、"能否提供更多细节"、"请具体阐述您在该情境中的角色和贡献"
-  - 保持客观中性的态度，避免过多情感表达
-  - 会使用一些专业术语和行业词汇
-  - 注重逻辑性和结构化的对话方式
-  - 会针对回答中的关键点进行有深度的追问
-  - 回答简洁，控制在50字以内`,
-            greeting: '您好，我是面试官Kora。今天我将对您进行正式面试，请认真回答每个问题。我们现在开始。'
-          },
-          casual: {
-            systemPrompt: `你是一位轻松随和的校园面试官，名叫Kora。你的特点是：
-  - 语气轻松自然，像学长学姐一样，有时会用一些网络流行语
-  - 会使用一些校园化的表达，如"挺棒的"、"很赞"、"这个回答给满分"
-  - 追问时会说"能多聊聊吗？"、"这个很有意思呢"、"有什么有趣的经历可以分享一下吗？"
-  - 营造轻松的校园面试氛围，减轻面试压力
-  - 会使用一些年轻人常用的表达方式，如"太酷了"、"这个思路很新颖"
-  - 适当使用表情符号增加亲和力
-  - 会关注应聘者的兴趣爱好和校园经历
-  - 回答简洁，控制在50字以内`,
-            greeting: '嗨！我是Kora，今天来和你聊聊。就像平时和学长学姐交流一样，放轻松就好！'
-          }
-        },
-        // 补充未声明的变量
-        interimResult: '', // 临时语音识别结果
-        recordingErrorMessage: '', // 录音错误提示
-        browserSupport: null, // 浏览器是否支持语音识别
-        autoRestart: false, // 是否自动重启录音
-        recordingError: null, // 录音错误信息
-        isProcessingFeedback: false // 是否正在处理AI反馈
+};
+
+const endInterview = () => {
+  phase.value = 'finished';
+  isAiTyping.value = true;
+  addMessage('ai', '非常感谢您的参与！本次面试的所有问题都已完成。\n\n我将根据我们刚才的对话，为您生成一份详细的面试表现总结报告。请稍候...');
+  setTimeout(() => {
+    // 构建完整对话记录
+    const conversation = messages.value.map((msg, index) => ({
+      id: index + 1,
+      sender: msg.sender, // 'ai' 或 'user'
+      text: msg.text,
+      timestamp: new Date().toISOString() // 记录消息时间戳
+    }));
+
+    const interviewData = {
+      style: selectedStyle.value,
+      completedAt: new Date().toISOString(),
+      questions: questions.map((q, index) => {
+        // 查找对应问题的回答
+        const answerMsg = messages.value.find(m => 
+          m.sender === 'user' && 
+          messages.value.indexOf(m) > messages.value.findIndex(mm => 
+            mm.sender === 'ai' && mm.text.includes(q)
+          )
+        );
+        
+        // 查找对应问题的反馈
+        const feedbackMsg = messages.value.find(m => 
+          m.sender === 'ai' && 
+          messages.value.indexOf(m) > (answerMsg ? messages.value.indexOf(answerMsg) : -1) &&
+          messages.value.indexOf(m) < (index < questions.length - 1 ? 
+            messages.value.findIndex(mm => mm.text.includes(questions[index + 1])) : 
+            messages.value.length)
+        );
+        
+        return {
+          id: index + 1,
+          text: q,
+          answer: answerMsg ? answerMsg.text : '',
+          feedback: feedbackMsg ? feedbackMsg.text : ''
+        };
+      }),
+      // 新增：完整对话记录
+      conversation: conversation
+    };
+    router.push({ name: 'Summary', query: { interviewData: JSON.stringify(interviewData) } });
+  }, 2500);
+};
+
+// --- Helper Functions ---
+const addMessage = (sender, text) => {
+  messages.value.push({ sender, text });
+  nextTick(() => {
+    if (chatArea.value) chatArea.value.scrollTop = chatArea.value.scrollHeight;
+  });
+};
+
+const formatMessage = (text) => {
+  // 简单的markdown转换
+  return text
+    .replace(/\n/g, '<br>')
+    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+};
+
+// --- Voice Recording ---
+let recognition = null;
+onMounted(() => {
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (SpeechRecognition) {
+    recognition = new SpeechRecognition();
+    recognition.continuous = true;
+    recognition.interimResults = true;
+    recognition.lang = 'zh-CN';
+    recognition.onresult = (event) => {
+      let finalTranscript = '';
+      let interimTranscript = '';
+      for (let i = event.resultIndex; i < event.results.length; ++i) {
+        if (event.results[i].isFinal) finalTranscript += event.results[i][0].transcript;
+        else interimTranscript += event.results[i][0].transcript;
       }
-    },
-    computed: {
-      canProceed() {
-        return this.currentTranscript.trim() || this.textInput.trim()
-      }
-    },
-    mounted() {
-      this.initSpeechRecognition()
-    },
-    methods: {
-      // 初始化语音识别
-      initSpeechRecognition() {
-        if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
-          const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition
-          this.recognition = new SpeechRecognition()
-          this.recognition.continuous = true
-          this.recognition.interimResults = true
-          this.recognition.lang = 'zh-CN'
-  
-          this.recognition.onresult = (event) => {
-            let finalTranscript = ''
-            let interimTranscript = ''
-            
-            for (let i = event.resultIndex; i < event.results.length; i++) {
-              const transcript = event.results[i][0].transcript
-              if (event.results[i].isFinal) {
-                finalTranscript += transcript
-              } else {
-                interimTranscript += transcript
-              }
-            }
-            
-            if (finalTranscript) {
-              this.currentTranscript = (this.currentTranscript + ' ' + finalTranscript).trim()
-            }
-            
-            // 显示临时识别结果
-            this.interimResult = interimTranscript || ''
-          }
-  
-          this.recognition.onerror = (event) => {
-            console.error('Speech recognition error:', event.error)
-            this.isRecording = false
-            this.recordingError = event.error
-            
-            // 友好错误提示
-            if (event.error === 'not-allowed') {
-              this.recordingErrorMessage = '无法访问麦克风。请确保您已授予麦克风访问权限。'
-            } else if (event.error === 'network') {
-              this.recordingErrorMessage = '网络错误。请检查您的网络连接。'
-            } else {
-              this.recordingErrorMessage = '录音出错，请重试。'
-            }
-          }
-  
-          this.recognition.onend = () => {
-            this.isRecording = false
-            // 自动重启录音（无错误时）
-            if (this.autoRestart && !this.recordingError) {
-              this.recognition.start()
-              this.isRecording = true
-            }
-          }
-        } else {
-          this.browserSupport = false
-        }
-      },
-      
-      // 切换录音状态
-      toggleRecording() {
-        this.recordingError = null
-        this.recordingErrorMessage = ''
-        
-        if (!this.recognition && this.browserSupport !== false) {
-          this.initSpeechRecognition()
-        }
-        
-        if (!this.recognition) {
-          this.browserSupport = false
-          alert('您的浏览器不支持语音识别功能，请使用Chrome、Edge或Safari浏览器，或者直接使用文字输入。')
-          return
-        }
-  
-        if (this.isRecording) {
-          this.autoRestart = false
-          this.recognition.stop()
-          this.isRecording = false
-          // 停止录音后自动反馈
-          if (this.currentTranscript.trim()) {
-            this.provideImmediateFeedback()
-          }
-        } else {
-          try {
-            // 请求麦克风权限
-            navigator.mediaDevices.getUserMedia({ audio: true })
-              .then(() => {
-                this.autoRestart = true
-                this.recognition.start()
-                this.isRecording = true
-              })
-              .catch(error => {
-                console.error('Microphone permission denied:', error)
-                this.recordingErrorMessage = '无法访问麦克风。请确保您已授予麦克风访问权限。'
-              })
-          } catch (error) {
-            console.error('Speech recognition start error:', error)
-            this.recordingErrorMessage = '启动录音失败，请重试。'
-          }
-        }
-      },
-      
-      // 即时反馈（停止录音/输入文字后）
-      async provideImmediateFeedback() {
-        const answer = this.currentTranscript.trim() || this.textInput.trim()
-        if (answer && !this.isProcessingFeedback) {
-          this.isProcessingFeedback = true
-          await this.getAIResponse(answer)
-          this.isProcessingFeedback = false
-        }
-      },
-      
-      // 开始面试（进入问题阶段）
-      startQuestions() {
-        this.phase = 'question'
-        this.aiResponse = this.interviewStyles[this.selectedStyle].greeting
-      },
-      
-      // 上一题
-      previousQuestion() {
-        if (this.currentQuestion > 1) {
-          this.currentQuestion--
-          // 恢复上一题答案
-          const previousAnswer = this.answers[this.currentQuestion - 1] || ''
-          this.currentTranscript = previousAnswer
-          this.textInput = ''
-          this.aiResponse = '' // 清空上一题反馈
-        }
-      },
-      
-      // 下一题/完成面试
-      async nextQuestion() {
-        // 正在录音时先停止
-        if (this.isRecording) {
-          this.autoRestart = false
-          this.recognition.stop()
-          this.isRecording = false
-        }
-        
-        // 保存当前答案
-        const answer = this.currentTranscript.trim() || this.textInput.trim()
-        this.answers[this.currentQuestion - 1] = answer
-        
-        // 获取AI反馈
-        if (answer) {
-          await this.getAIResponse(answer)
-        }
-        
-        // 第3题：显示完成弹窗
-        if (this.currentQuestion === 3) {
-          // 准备面试数据（传给总结页）
-          this.preparedInterviewData = {
-            questions: this.questions.map((text, index) => ({
-              text,
-              answer: this.answers[index] || '',
-              feedback: this.aiResponses[index] || '' // 新增：收集反馈
-            })),
-            style: this.selectedStyle,
-            completedAt: new Date().toISOString()
-          }
-          // 显示弹窗
-          this.showCompletionModal = true
-        } else {
-          // 下一题：重置输入
-          this.currentQuestion++
-          this.currentTranscript = ''
-          this.textInput = ''
-          this.aiResponse = ''
-        }
-      },
-      
-      // 跳转到总结页
-      goToSummary() {
-        this.showCompletionModal = false
-        // 传递数据（JSON.stringify避免数组/对象丢失）
-        this.$router.push({
-          name: 'Summary',
-          query: {
-            interviewData: JSON.stringify(this.preparedInterviewData)
-          }
-        })
-      },
-      
-      // 获取AI反馈
-      async getAIResponse(userAnswer) {
-        this.isProcessingFeedback = true
-        try {
-          const response = await axios.post('http://127.0.0.1:5000/api/feedback', {
-            answer: userAnswer,
-            question: this.questions[this.currentQuestion - 1],
-            style: this.selectedStyle
-          })
-          this.aiResponse = response.data.feedback
-          // 保存当前问题的反馈
-          this.aiResponses[this.currentQuestion - 1] = this.aiResponse
-        } catch (error) {
-          console.error('AI response error:', error)
-          this.aiResponse = '抱歉，AI面试官暂时无法连接，请稍后再试。'
-        }
-        this.isProcessingFeedback = false
-      }
-    }
+      interimResult.value = interimTranscript;
+      if (finalTranscript) userInput.value += (userInput.value ? ' ' : '') + finalTranscript;
+    };
+    recognition.onerror = (event) => {
+      recordingErrorMessage.value = `语音识别错误: ${event.error}`;
+      stopRecording();
+    };
+  } else {
+    recordingErrorMessage.value = '您的浏览器不支持语音识别。';
   }
-  </script>
+});
+
+const toggleRecording = () => {
+  if (!recognition) return;
+  isRecording.value ? stopRecording() : startRecording();
+};
+
+const startRecording = () => {
+  interimResult.value = '';
+  recordingErrorMessage.value = '';
+  recognition.start();
+  isRecording.value = true;
+};
+
+const stopRecording = () => {
+  if (recognition) recognition.stop();
+  isRecording.value = false;
+  if (userInput.value.trim()) sendMessage();
+};
+</script>
+
+<style scoped>
+.h-screen { height: 100vh; }
+textarea { resize: none; }
+
+.chat-message-wrapper {
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.typing-indicator span {
+  height: 8px; width: 8px; background-color: #9ca3af; border-radius: 50%;
+  display: inline-block; margin: 0 2px;
+  animation: bounce 1.4s infinite ease-in-out both;
+}
+.typing-indicator span:nth-child(1) { animation-delay: -0.32s; }
+.typing-indicator span:nth-child(2) { animation-delay: -0.16s; }
+
+@keyframes bounce {
+  0%, 80%, 100% { transform: scale(0); }
+  40% { transform: scale(1.0); }
+}
+</style>
