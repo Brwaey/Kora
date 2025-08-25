@@ -1,0 +1,9 @@
+POST http://localhost:5000/api/feedback
+Content-Type: application/json
+{
+  "question": "介绍自己",
+  "answer": "我是有3年经验的前端工程师",
+  "style": "friendly"
+}
+
+###
