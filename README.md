@@ -34,7 +34,7 @@ Kora 语音面试是一个创新的 AI 面试平台，旨在通过模拟真实�
 
 3.  **安装后端依赖**:
     ```bash
-    cd backend
+    cd api
     pip install -r requirements.txt
     ```
 
@@ -50,7 +50,7 @@ Kora 语音面试是一个创新的 AI 面试平台，旨在通过模拟真实�
 
 1.  **启动后端服务**:
     ```bash
-    cd backend
+    cd api
     python app.py
     ```
     后端服务将在 `http://127.0.0.1:5000` 上运行。
