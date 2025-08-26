@@ -272,7 +272,7 @@ const sendMessage = async () => {
 const processUserAnswer = async (answer) => {
   const currentQ = questions[currentQuestionIndex.value];
   try {
-    const response = await axios.post('http:/kora-sage.vercel.app/api/feedback', {
+    const response = await axios.post('http://127.0.0.1:5000/api/feedback', {
       question: currentQ, answer, style: selectedStyle.value
     });
     addMessage('ai', response.data.feedback);

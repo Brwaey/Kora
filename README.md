@@ -34,13 +34,13 @@ Kora 语音面试是一个创新的 AI 面试平台，旨在通过模拟真实�
 
 3.  **安装后端依赖**:
     ```bash
-    cd api
+    cd backend
     pip install -r requirements.txt
     ```
 
 ### 环境配置
 
-1.  在 `api` 目录下创建一个名为 `.env` 的文件。
+1.  在 `backend` 目录下创建一个名为 `.env` 的文件。
 2.  在 `.env` 文件中，添加您的 DashScope API 密钥，格式如下：
     ```
     DASHSCOPE_API_KEY=your_api_key_here
@@ -50,7 +50,7 @@ Kora 语音面试是一个创新的 AI 面试平台，旨在通过模拟真实�
 
 1.  **启动后端服务**:
     ```bash
-    cd api
+    cd backend
     python app.py
     ```
     后端服务将在 `http://127.0.0.1:5000` 上运行。
@@ -68,8 +68,7 @@ Kora 语音面试是一个创新的 AI 面试平台，旨在通过模拟真实�
 ```
 .
 ├── README.md
-├── api/
-│   ├── __init__.py
+├── backend/
 │   ├── .env             # 存储环境变量 (需自行创建)
 │   ├── app.py           # Flask 后端主应用
 │   ├── requirements.txt # Python 依赖
