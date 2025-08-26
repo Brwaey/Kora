@@ -41,31 +41,40 @@
               </div>
             </div>
           </section>
-
-          <!-- 完整对话记录部分 -->
-          <section class="full-conversation">
-            <h2>🗣️ 完整对话记录</h2>
-            <div class="conversation-list">
+  
+          <!-- Interview Records -->
+          <section class="interview-records">
+            <h2>📝 面试记录</h2>
+            
+            <div class="records-list">
               <div 
-                v-for="(msg, index) in interviewData.conversation" 
-                :key="index"
-                :class="['conversation-item', msg.sender === 'ai' ? 'ai-message' : 'user-message']"
+                v-for="(question, index) in interviewData.questions" 
+                :key="question.id"
+                class="record-item"
               >
-                <div class="sender-avatar">
-                  <div :class="['avatar-icon', msg.sender === 'ai' ? 'ai-avatar' : 'user-avatar']">
-                    {{ msg.sender === 'ai' ? 'AI' : 'U' }}
-                  </div>
-                  <span class="sender-label">{{ msg.sender === 'ai' ? '面试官' : '您' }}</span>
+                <div class="question-header">
+                  <span class="question-number">问题 {{ index + 1 }}</span>
+                  <span class="question-length">{{ getAnswerLength(question.answer) }} 字</span>
                 </div>
-                <div class="message-content">
-                  <p v-html="formatMessage(msg.text)"></p>
-                  <span class="message-time">{{ formatTime(msg.timestamp) }}</span>
+                
+                <div class="question-content">
+                  <h3>{{ question.text }}</h3>
+                </div>
+                
+                <div class="answer-content">
+                  <h4>您的回答：</h4>
+                  <p>{{ question.answer || '未回答' }}</p>
+                </div>
+                
+                <div class="feedback-content">
+                  <h4>面试官反馈：</h4>
+                  <p>{{ question.feedback }}</p>
                 </div>
               </div>
             </div>
           </section>
-          
-          <!-- AI 专业分析 -->
+  
+          <!-- 新增：AI 专业分析 -->
           <section class="ai-analysis">
             <h2>🤖 AI 专业分析</h2>
             <div class="analysis-card">
@@ -74,6 +83,34 @@
                 <p>正在生成您的专属分析报告，请稍候...</p>
               </div>
               <div v-else v-html="marked(llmAnalysisReport)" class="analysis-report"></div>
+            </div>
+          </section>
+
+          <!-- Performance Analysis -->
+          <section class="performance-analysis">
+            <h2>📊 表现分析</h2>
+            
+            <div class="analysis-grid">
+              <div class="analysis-card">
+                <div class="analysis-icon">💬</div>
+                <h3>回答完整度</h3>
+                <div class="score">{{ completionRate }}%</div>
+                <p>{{ getCompletionFeedback() }}</p>
+              </div>
+              
+              <div class="analysis-card">
+                <div class="analysis-icon">📏</div>
+                <h3>回答长度</h3>
+                <div class="score">{{ averageLength }} 字</div>
+                <p>{{ getLengthFeedback() }}</p>
+              </div>
+              
+              <div class="analysis-card">
+                <div class="analysis-icon">⭐</div>
+                <h3>整体表现</h3>
+                <div class="score">{{ overallRating }}</div>
+                <p>{{ getOverallFeedback() }}</p>
+              </div>
             </div>
           </section>
   
@@ -108,10 +145,10 @@
   </template>
   
   <script setup>
-  import { ref, onMounted } from 'vue'
+  import { ref, computed, onMounted } from 'vue'
   import { useRouter, useRoute } from 'vue-router'
   import { marked } from 'marked'
-  import axios from 'axios';
+  import axios from 'axios'; // 1. 导入 axios
   
   const router = useRouter()
   const route = useRoute()
@@ -147,13 +184,36 @@
       .replace(/\n/g, '<br>')
       .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
   };
+
+  // Computed properties for analysis
+  const completionRate = computed(() => {
+    const answered = interviewData.value.questions.filter(q => q.answer && q.answer.trim()).length
+    return Math.round((answered / interviewData.value.questions.length) * 100)
+  })
+  
+  const averageLength = computed(() => {
+    const answers = interviewData.value.questions.filter(q => q.answer && q.answer.trim())
+    if (answers.length === 0) return 0
+    const totalLength = answers.reduce((sum, q) => sum + q.answer.length, 0)
+    return Math.round(totalLength / answers.length)
+  })
+  
+  const overallRating = computed(() => {
+    const completion = completionRate.value
+    const avgLen = averageLength.value
+    
+    if (completion >= 100 && avgLen >= 100) return '优秀'
+    if (completion >= 80 && avgLen >= 50) return '良好'
+    if (completion >= 60) return '一般'
+    return '需改进'
+  })
   
   // Helper functions
   const getStyleName = (style) => {
     const styles = {
-      friendly: '亲切友好',
+      friendly: '亲切友好', // 2. 修正键名
       formal: '正式严肃',
-      casual: '校园风格'
+      casual: '校园风格' // 2. 修正键名
     }
     return styles[style] || '未知'
   }
@@ -167,6 +227,36 @@
       hour: '2-digit',
       minute: '2-digit'
     })
+  }
+  
+  const getAnswerLength = (answer) => {
+    return answer ? answer.length : 0
+  }
+  
+  const getCompletionFeedback = () => {
+    const rate = completionRate.value
+    if (rate >= 100) return '所有问题都得到了回答，表现出色！'
+    if (rate >= 80) return '大部分问题都有回答，整体表现良好。'
+    if (rate >= 60) return '回答了部分问题，还有提升空间。'
+    return '建议完整回答所有问题以获得更好的面试效果。'
+  }
+  
+  const getLengthFeedback = () => {
+    const avgLen = averageLength.value
+    if (avgLen >= 150) return '回答详细充实，能够充分展示您的经历。'
+    if (avgLen >= 100) return '回答长度适中，内容比较完整。'
+    if (avgLen >= 50) return '回答相对简短，可以更详细地描述。'
+    return '建议提供更详细的回答以更好地展示自己。'
+  }
+  
+  const getOverallFeedback = () => {
+    const rating = overallRating.value
+    switch (rating) {
+      case '优秀': return '面试表现优秀，回答完整且详细！'
+      case '良好': return '面试表现良好，继续保持！'
+      case '一般': return '面试表现一般，还有改进空间。'
+      default: return '建议多练习，提升面试表现。'
+    }
   }
   
   // Export functions
@@ -197,7 +287,19 @@
     content += `完成时间：${formatDate(interviewData.value.completedAt)}\n`;
     content += `问题数量：${interviewData.value.questions.length} 个\n\n`;
     
-    // 完整对话记录
+    content += `========== 问题与回答 ==========\n\n`;
+    interviewData.value.questions.forEach((question, index) => {
+      content += `问题 ${index + 1}：${question.text}\n`;
+      content += `回答：${question.answer || '未回答'}\n`;
+      content += `反馈：${question.feedback}\n\n`;
+    });
+    
+    content += `========== 表现分析 ==========\n`;
+    content += `- 回答完整度：${completionRate.value}%\n`;
+    content += `- 平均回答长度：${averageLength.value} 字\n`;
+    content += `- 整体评价：${overallRating.value}\n\n`;
+    
+    // 新增：完整对话记录
     content += `========== 完整对话记录 ==========\n\n`;
     interviewData.value.conversation.forEach((msg) => {
       const sender = msg.sender === 'ai' ? '面试官' : '您';
@@ -218,14 +320,14 @@
     window.print()
   }
   
-  const llmAnalysisReport = ref('') // 存储LLM分析报告
-  const isAnalysisLoading = ref(true) // 分析加载状态
+  const llmAnalysisReport = ref('') // 新增：存储LLM分析报告
+  const isAnalysisLoading = ref(true) // 新增：分析加载状态
   
   const getLLMAnalysis = async () => {
     isAnalysisLoading.value = true
     try {
         // 直接传递原始对象，与后端测试用例格式一致
-        const response = await axios.post('http://127.0.0.1:5000/api/analyze', {
+        const response = await axios.post('http://kora-sage.vercel.app/api/analyze', {
         interviewData: interviewData.value // 传递对象而非字符串
         })
         llmAnalysisReport.value = response.data.analysis
@@ -256,7 +358,7 @@
 </script>
 
 <style scoped>
-  /* 基础样式 */
+  /* 在现有样式中添加 */
   .summary {
     min-height: 100vh;
     background: linear-gradient(135deg, #f0f9ff 0%, #e6fffa 100%);
@@ -280,6 +382,30 @@
     display: inline-block;
   }
   
+  .record-item {
+    background: white;
+    border-radius: 1rem;
+    padding: 2rem;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    transition: transform 0.3s, box-shadow 0.3s;
+    border: 1px solid rgba(226, 232, 240, 0.7);
+  }
+  
+  .record-item:hover {
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    transform: translateY(-2px);
+  }
+  
+  .question-number {
+    background: linear-gradient(to right, #059669, #10b981);
+    color: white;
+    padding: 0.25rem 0.75rem;
+    border-radius: 1rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    box-shadow: 0 2px 4px rgba(5, 150, 105, 0.2);
+  }
+  
   .analysis-card {
     background: white;
     padding: 2rem;
@@ -293,6 +419,16 @@
   .analysis-card:hover {
     box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
     transform: translateY(-2px);
+  }
+  
+  .score {
+    font-size: 2rem;
+    font-weight: 700;
+    background: linear-gradient(to right, #059669, #10b981);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    margin-bottom: 0.5rem;
   }
   
   .export-btn {
@@ -345,154 +481,68 @@
     transform: translate(-50%, -50%);
   }
   
-  /* 完整对话记录区域 */
   .full-conversation {
     margin: 3rem 0;
-    padding: 1.5rem;
-    background-color: rgba(255, 255, 255, 0.8);
-    border-radius: 1.5rem;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
   }
 
   .full-conversation h2 {
     font-size: 1.875rem;
     margin-bottom: 1.5rem;
     color: #1e293b;
-    padding-bottom: 0.75rem;
-    border-bottom: 2px solid #059669;
-    display: inline-block;
   }
 
   .conversation-list {
     display: flex;
     flex-direction: column;
-    gap: 1.25rem;
-    padding: 0.5rem 0;
+    gap: 1.5rem;
   }
 
-  /* 对话项通用样式 */
   .conversation-item {
     display: flex;
     gap: 1rem;
-    max-width: 85%;
-    animation: fadeIn 0.3s ease-out forwards;
-    opacity: 0;
+    padding: 1rem;
+    border-radius: 0.75rem;
+    max-width: 90%;
   }
 
-  /* 消息淡入动画 */
-  @keyframes fadeIn {
-    from {
-      opacity: 0;
-      transform: translateY(10px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-
-  /* AI消息样式 */
   .ai-message {
     align-self: flex-start;
-    animation-delay: calc(0.1s * var(--index, 0));
+    background-color: #f8fafc;
   }
 
-  .ai-message .message-content {
-    background-color: #ffffff;
-    border: 1px solid #e2e8f0;
-    border-radius: 0.3rem 1rem 1rem 1rem;
-    position: relative;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-  }
-
-  /* 用户消息样式 */
   .user-message {
     align-self: flex-end;
-    margin-left: auto;
-    animation-delay: calc(0.1s * var(--index, 0));
-    flex-direction: row-reverse;
+    background-color: #e6fffa;
   }
 
-  .user-message .message-content {
-    background-color: #059669;
-    color: white;
-    border-radius: 1rem 0.3rem 1rem 1rem;
-    position: relative;
-    box-shadow: 0 2px 8px rgba(5, 150, 105, 0.15);
-  }
-
-  .user-message .sender-label {
-    text-align: center;
-  }
-
-  /* 头像样式优化 */
   .sender-avatar {
     display: flex;
     flex-direction: column;
     align-items: center;
-    min-width: 48px;
-    margin-top: 0.25rem;
-  }
-
-  .avatar-icon {
-    width: 2.25rem;
-    height: 2.25rem;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: bold;
-    color: white;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    transition: transform 0.2s;
-  }
-
-  .ai-avatar {
-    background-color: #059669;
-  }
-
-  .user-avatar {
-    background-color: #3b82f6;
-  }
-
-  .avatar-icon:hover {
-    transform: scale(1.05);
-  }
-
-  /* 消息内容样式 */
-  .message-content {
-    flex: 1;
-    padding: 1rem 1.25rem;
-    transition: transform 0.2s, box-shadow 0.2s;
-  }
-
-  .conversation-item:hover .message-content {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  }
-
-  .message-content p {
-    margin: 0;
-    line-height: 1.6;
-    word-wrap: break-word;
-  }
-
-  /* 时间戳样式优化 */
-  .message-time {
-    display: inline-block;
-    font-size: 0.7rem;
-    margin-top: 0.5rem;
-    opacity: 0.7;
-    text-align: right;
-    float: right;
-    clear: both;
-    padding-left: 1rem;
+    min-width: 50px;
   }
 
   .sender-label {
     font-size: 0.75rem;
     color: #64748b;
     margin-top: 0.25rem;
+  }
+
+  .message-content {
+    flex: 1;
+  }
+
+  .message-content p {
+    margin: 0;
+    line-height: 1.6;
+  }
+
+  .message-time {
+    display: block;
+    font-size: 0.75rem;
+    color: #94a3b8;
+    margin-top: 0.5rem;
+    text-align: right;
   }
 
   .analysis-icon {
@@ -565,15 +615,121 @@
     color: #1e293b;
   }
   
-  .export-section, .actions {
+  .interview-records, .performance-analysis, .export-section, .actions {
     margin-bottom: 3rem;
   }
   
-  .export-section h2 {
+  .interview-records h2, .performance-analysis h2, .export-section h2 {
     font-size: 1.875rem;
     font-weight: 700;
     margin-bottom: 1.5rem;
     color: #1e293b;
+  }
+  
+  .records-list {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+  }
+  
+  .record-item {
+    background: white;
+    border-radius: 1rem;
+    padding: 2rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  }
+  
+  .question-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+  }
+  
+  .question-number {
+    background: #059669;
+    color: white;
+    padding: 0.25rem 0.75rem;
+    border-radius: 1rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+  }
+  
+  .question-length {
+    color: #64748b;
+    font-size: 0.875rem;
+  }
+  
+  .question-content h3 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #1e293b;
+    margin-bottom: 1rem;
+    line-height: 1.4;
+  }
+  
+  .answer-content, .feedback-content {
+    margin-bottom: 1rem;
+  }
+  
+  .answer-content h4, .feedback-content h4 {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #1e293b;
+    margin-bottom: 0.5rem;
+  }
+  
+  .answer-content p {
+    color: #475569;
+    line-height: 1.6;
+    background: #f1f5f9;
+    padding: 1rem;
+    border-radius: 0.5rem;
+  }
+  
+  .feedback-content p {
+    color: #059669;
+    line-height: 1.6;
+    font-style: italic;
+  }
+  
+  .analysis-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 2rem;
+  }
+  
+  .analysis-card {
+    background: white;
+    padding: 2rem;
+    border-radius: 1rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    text-align: center;
+  }
+  
+  .analysis-icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+  }
+  
+  .analysis-card h3 {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: #1e293b;
+    margin-bottom: 0.5rem;
+  }
+  
+  .score {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #059669;
+    margin-bottom: 0.5rem;
+  }
+  
+  .analysis-card p {
+    color: #64748b;
+    font-size: 0.875rem;
+    line-height: 1.4;
   }
   
   .export-buttons {
@@ -638,7 +794,7 @@
     transform: translateY(-1px);
   }
   
-/* AI分析部分样式 */
+/* 在<style scoped>中添加/修改以下样式 */
 .ai-analysis {
   margin: 3rem 0;
   padding: 1rem;
@@ -729,7 +885,7 @@
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
 }
-  
+
   @media (max-width: 768px) {
     .container {
       padding: 0 1rem;
@@ -744,23 +900,17 @@
       gap: 1rem;
     }
     
+    .record-item {
+      padding: 1.5rem;
+    }
+    
+    .analysis-grid {
+      grid-template-columns: 1fr;
+    }
+    
     .export-buttons, .actions {
       flex-direction: column;
       align-items: center;
-    }
-
-    /* 移动端对话样式调整 */
-    .conversation-item {
-      max-width: 90%;
-    }
-    
-    .message-content {
-      padding: 0.75rem 1rem;
-    }
-    
-    .full-conversation {
-      padding: 1rem;
-      margin: 2rem 0;
     }
   }
   
@@ -778,4 +928,5 @@
       padding: 0;
     }
   }
-</style>
+  </style>
+  
