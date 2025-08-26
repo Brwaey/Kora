@@ -40,7 +40,7 @@ Kora 语音面试是一个创新的 AI 面试平台，旨在通过模拟真实�
 
 ### 环境配置
 
-1.  在 `backend` 目录下创建一个名为 `.env` 的文件。
+1.  在 `api` 目录下创建一个名为 `.env` 的文件。
 2.  在 `.env` 文件中，添加您的 DashScope API 密钥，格式如下：
     ```
     DASHSCOPE_API_KEY=your_api_key_here
@@ -68,7 +68,8 @@ Kora 语音面试是一个创新的 AI 面试平台，旨在通过模拟真实�
 ```
 .
 ├── README.md
-├── backend/
+├── api/
+│   ├── __init__.py
 │   ├── .env             # 存储环境变量 (需自行创建)
 │   ├── app.py           # Flask 后端主应用
 │   ├── requirements.txt # Python 依赖
